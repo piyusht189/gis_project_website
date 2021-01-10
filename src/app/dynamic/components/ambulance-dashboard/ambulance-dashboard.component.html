@@ -1,0 +1,784 @@
+<div class="wrapper ">
+        <app-navigation [current]="'hospitaldashboard'"></app-navigation>
+        <div class="main-panel">
+         <app-header [current]="'Ambulance Dashboard'"></app-header>
+        
+
+         <div class="content" style="display: flex;">
+                <ngui-map [options]="mapOptions" (mapReady$)="onMapReady($event)" style="height: calc(100vh - 123px);border: 1px solid #c1c1c1;width:69%;margin-right: 1%;position: relative;">
+                  <!-- FOR Tracking -->
+                  <custom-marker *ngFor="let pos of positions; let i = index" [position]="pos.position"
+                          (click)="clicked(pos.did,i)" (initialized$)="onCustomMarkerInit($event, pos['did'])"
+                          style="position:relative;">
+                          <app-map-icon-image [pos_rotation]="pos.rotation"></app-map-icon-image>
+                          <span
+                              style="box-shadow: 1px 1px 2px 1px #888888;border:1px solid rgb(14, 29, 53);border-radius:8px;padding:8px 10px;width: auto;white-space: nowrap; background:rgb(255, 255, 255);position:absolute;top:-40px;right:30px;">
+                              <span style="display: flex;">{{ getName(pos.did) }} 
+                                <span [matTooltip]="pos.motion ? 'Driver Online' : 'Driver Offline'" style="margin:0px;margin-left: 6px;margin-top: -1px;">
+                                <img src="../../../../../assets/img/greendot.gif" *ngIf="pos.motion" width="15" style="margin: auto;
+                                      display: block;" />
+                                 <img src="../../../../../assets/img/reddot.png" *ngIf="!pos.motion" width="15" style="margin: auto;
+                                      display: block;" />
+                            </span>
+                          </span>
+                              <div class="vehicle_moving"></div>
+                          </span>
+                      </custom-marker>
+
+
+
+                      <custom-marker *ngFor="let pos of drivePoints" [position]="pos.position"
+                      style="position:relative;">
+                      <img *ngIf="pos.icon" [src]="'../../../../assets/img/' + pos.icon" style="width: 30px;" />
+                      <span *ngIf="pos.phone || pos.message"
+                          style="box-shadow: 1px 1px 2px 1px #888888;border:1px solid rgb(14, 29, 53);border-radius:8px;padding:8px 5px;width:120px;background:rgb(255, 255, 255);position:absolute;top:-40px;right:40px;">
+                          <span style="margin: 3px;font-weight: 600;color:#ca030d !important">{{ pos.message }}</span><br>
+                          <span style="margin: 3px;color: rgb(0, 147, 17);" *ngIf="pos.phone"><i class="material-icons" style="font-size: 0.8em;margin-top:10px;top:5px;                                                      margin-right: 1px;">phone</i> {{ pos.phone }}</span>
+
+                      </span>
+                  </custom-marker>
+
+
+                  <a href="javascript:void(0)" class="btn btn-primary btn-round" style="position: absolute;text-transform: capitalize;
+                  top: 1px;
+                  right: 4px;
+                  padding: 9px 18px;" *ngIf="drivers.length && enroute" (click)="trackAll(1)">Close {{ dname_holder }} Live Drive Tracking
+                  </a>
+
+
+                  <a href="javascript:void(0)" class="btn btn-primary btn-round" style="position: absolute;text-transform: capitalize;
+                  top: 1px;
+                  right: 4px;
+                  padding: 9px 18px;" *ngIf="drivers.length && !enroute" (click)="trackAll()">Track All Ambulances</a>
+                  </ngui-map>
+                  <div style="width: 30%;
+                  height: calc(100vh - 123px);
+                  overflow-y: scroll;
+                  border: 2px solid #ca030d;
+                  border-radius: 15px;
+                  padding: 10px 10px;">
+                    <p style="    text-align: center;
+                    font-size: 1.3em;">Drivers</p>
+                    <p *ngIf="drivers.length == 0" style="text-align: center;
+                    background: #ca030d;
+                    padding: 10px 20px;
+                    width: fit-content;
+                    margin: auto;
+                    border-radius: 25px;
+                    margin-top: 20px;
+                    color: #fff;">No Drivers</p>
+                    <div *ngIf="drivers.length != 0" style="background: #ca030d;
+                    color: #fff;
+                    padding: 10px 18px 0px 10px;
+                    border-radius: 20px;
+                    display: flex;">
+                      <p style="margin: 0px;
+                      float: right;
+                      width: 76%;
+                      text-align: end;">Show All</p>
+                      <div class="form-check" style="margin: 0;
+                      float: right;
+                      width: 24%;">
+                        <label class="form-check-label">
+                          <input class="form-check-input" type="checkbox" value="" [(ngModel)]="allselected" (ngModelChange)="this.enroute = false;clearDrive();check_all($event)">
+                          <span class="form-check-sign">
+                            <span class="check"></span>
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+                    <div *ngFor="let driver of drivers;let i = index" class="card card-stats" style="margin: 5px 0px;border: 1px solid #73727300;cursor: pointer;">
+                      <div class="card-header card-header-success card-header-icon" style="text-align: inherit;">
+                        <div class="form-check" style="position: absolute;
+                        right: 0;">
+                          <label class="form-check-label">
+                            <input class="form-check-input" type="checkbox" value="" [(ngModel)]="driver.selected" (ngModelChange)="this.enroute = false;clearDrive();startTracking(drivers,1);">
+                            <span class="form-check-sign">
+                              <span class="check"></span>
+                            </span>
+                          </label>
+                        </div>
+
+
+                        <p class="card-category" style="    color: #ca030d;
+                        font-size: 1.1em;
+                        margin: 12px 0px 3px 0px;">{{ driver.dname }}</p>
+                        <h3 class="card-title" style="font-size: 0.9em;
+                        line-height: 20px;">{{ driver.demail }}</h3>
+                        <h3 class="card-title" style="    font-size: 0.9em;
+                        line-height: 20px;">{{ driver.dphone }}</h3>
+                        <div style="display: flex;">
+                          <button type="button" class="btn btn-primary" (click)="openDrive(driver.dname, driver.aadid);" style="padding: 0;
+                          height: auto;
+                          width: 33%;
+                          text-transform: capitalize;
+                          font-size: 0.8em;"><i class="material-icons" style="font-size: 1.2em;    line-height: 20px;
+                          margin: 0;
+                          margin-bottom: 2px;
+                          cursor: pointer;
+                          width: auto;
+                          height: auto;
+                          margin-left: 1px;">add</i> Add/View Drive</button>
+                           <button type="button" *ngIf="!isEnroute(driver.aadid)" (click)="trackNormal(driver.dname, driver.aadid)" class="btn btn-success"  style="padding: 0;
+                           height: auto;
+                           width: 33%;
+                           text-transform: capitalize;
+                           font-size: 0.8em;" ><i class="material-icons" style="font-size: 1.2em;    line-height: 20px;
+                           margin: 0;
+                           margin-bottom: 2px;
+                           cursor: pointer;
+                           width: auto;
+                           height: auto;
+                           margin-left: 1px;">gps_fixed</i> Track</button>
+                            <button type="button" *ngIf="isEnroute(driver.aadid)" (click)="trackLive(driver.dname, driver.aadid)" class="btn btn-success"  style="padding: 0;
+                            height: auto;
+                            width: 33%;
+                            text-transform: capitalize;
+                            font-size: 0.8em;" ><i class="material-icons" style="font-size: 1.2em;    line-height: 20px;
+                            margin: 0;
+                            margin-bottom: 2px;
+                            cursor: pointer;
+                            width: auto;
+                            height: auto;
+                            margin-left: 1px;">gps_fixed</i> Track Live Drive</button>
+                              <button type="button" class="btn btn-info" (click)="open_send_notification(driver.dname, driver.aadid)" style="padding: 0;
+                              height: auto;
+                              width: 33%;
+                              text-transform: capitalize;
+                              font-size: 0.8em;"><i class="material-icons" style="font-size: 1.2em;    line-height: 30px;
+                              margin: 0;
+                              margin-bottom: 2px;
+                              cursor: pointer;
+                              width: auto;
+                              height: auto;
+                              margin-left: 1px;">chat</i> Send Notification</button>
+                        </div>
+                      </div>
+                      <div class="card-footer" style="margin-top: 10px;display: block;">
+                        <div class="stats" style="line-height: 18px;color: #616161;" [innerHTML]="getLastTime(driver.aadid)"></div>
+                      </div>
+                    </div>
+                  </div>
+          </div>
+          
+          <footer class="footer">
+            <div class="container-fluid">
+              <div class="copyright float-right">
+                &copy; Copyright, DriveCraft Labs
+                <script>
+                  document.write(new Date().getFullYear())
+                </script>
+              </div>
+            </div>
+          </footer>
+        </div>
+      </div>
+    
+    
+    
+
+
+
+
+    <ngx-smart-modal #adddrive identifier="adddrive" class="adddrive">
+      <h1 style="text-align: center;height: 2%;
+      margin-bottom: 20px;">Add/View Drive - {{ dname_holder }}</h1>
+      <div style="height: 80%;margin-bottom: 40px;">
+          <div class="col-md-12" style="height: 100%;">
+            <div class="card" style="height: 100%;display: block;
+            padding-bottom: 10px;">
+             
+              <div class="card-body" style="height: 100%;">
+
+
+                <mat-tab-group mat-align-tabs="center" style="height: 100%;" [(selectedIndex)]="selectedIndex">
+                    <mat-tab label="Add Regular/Planned Drive">
+                        <ng-template matTabContent>
+                            <form style="height: 100%;">
+                                <div class="row" style="height: 100%;padding: 10px 0px;">
+                                    <div class="col-md-8" style="border-right: 1px solid #ca030d;">
+                                        <div style="display: flex;
+                                        background: #eff6fb;
+                                        font-weight: 400;
+                                        border: 1px solid #ca030d;
+                                        color: #ca030d;
+                                        padding: 8px 20px 3px 20px;
+                                        border-radius: 12px;
+                                        width: fit-content;
+                                        margin: auto;"><span>Regular Drive</span> <ui-switch [(ngModel)]="planned_drive" [ngModelOptions]="{standalone: true}" size="small" style="    margin: 0px 10px;"></ui-switch> <span style="color: #0d629a;">Planned Drive</span></div>
+                                        <div *ngIf="planned_drive" style="border-radius: 10px;
+                                        border: 1px dotted #1d689e;
+                                        display: flex;
+                                        margin-top: 18px;
+                                        padding: 10px 20px;">
+                                          <div class="planned" style="width: 100%;display:flex;">
+                                              <div style="width:70%;">
+                                                  <div class="form-group">
+                                                    <select class="form-control" [(ngModel)]="planned_period" [ngModelOptions]="{standalone: true}" style="height: 36px;width:95%;
+                                                    color: #0d629a;">
+                                                        <option [value]="''">Select Period</option>
+                                                        <option  *ngFor="let pp of planned_periods" [value]="pp">{{ pp }}</option>
+                                                      </select>
+                                                  </div>
+                                                </div>
+                                                <div style="width:100%;" *ngIf="planned_period != '' && planned_period != 'Daily' ">
+                                                    <ng-multiselect-dropdown 
+                                                    *ngIf="planned_period == 'Weekly'"
+                                                    [placeholder]="'Select Weekday(s)'"
+                                                    [data]="weekdays"
+                                                    [(ngModel)]="planned_weekdays"
+                                                    [ngModelOptions]="{standalone: true}"
+                                                    [settings]="dropdownSettings"
+                                                    >
+                                                  </ng-multiselect-dropdown>
+
+                                                  <ng-multiselect-dropdown 
+                                                  *ngIf="planned_period == 'Monthly'"
+                                                  [placeholder]="'Select Date(s)'"
+                                                  [data]="dates"
+                                                  [(ngModel)]="planned_dates"
+                                                  [ngModelOptions]="{standalone: true}"
+                                                  [settings]="dropdownSettings_dates"
+                                                  >
+                                                </ng-multiselect-dropdown>
+                                                    <div class="form-group purple" *ngIf="planned_period == 'One Time Schedule'">
+                                                      <label class="bmd-label-floating">Date to Push Drive</label>
+                                                        <input type="date" class="form-control" [min]='min' [(ngModel)]="planned_ot_date" [ngModelOptions]="{standalone: true}" style="height: 36px;width:95%;
+                                                        color: #0d629a;">
+                                                    </div>
+                                                  </div>
+                                                  <div style="width:100%;" *ngIf="planned_period != ''">
+                                                      <input [ngxTimepicker]="picker" placeholder="Time to Start Drive (Dafault: mid-night)" [(ngModel)]="planned_time_ui" (ngModelChange)="show($event)" [ngModelOptions]="{standalone: true}" class="placeholderblue" style="width: 90%;
+                                                      border: none;
+                                                      border-bottom: 1px solid #0f619a;
+                                                      padding: 16px 0px 6px 0px;
+                                                      color: #0f619a;">
+                                                      <ngx-material-timepicker #picker></ngx-material-timepicker>
+                                                    </div>
+                                          </div>
+                                        </div>
+                                        <label style="font-size: 1.2em;
+                                        font-weight: 700;
+                                        margin-top: 10px;">Add a Drive</label>
+                                            <div style="display: flex;margin-bottom: 12px;" *ngFor="let point of points;let i = index">
+                                              <p style="color: #ca030d;
+                                                font-size: 1.2em;width: 200px;
+                                                margin-right: 10px;
+                                                margin: auto;">{{ i == 0 ? '     At' : 'Then at' }}</p>
+                                               <div style="width: 100%;"><input type="text" placeholder="Click here & Pin Point from right" style="width: 95%;border-radius: 20px;
+                                                border: 1px solid #ca030d;
+                                                padding: 5px 20px;" [(ngModel)]="point.location" [ngModelOptions]="{standalone: true}" (click)="inputSelected(i)" readonly/></div>
+                                                <p style="color: #ca030d;
+                                                font-size: 1.2em;
+                                                margin: auto;
+                                                margin-right: 15px;">do</p>
+                                               <div style="width: 100%;"><input type="text" placeholder="Enter Message" style="width: 95%;border-radius: 20px;
+                                                border: 1px solid #ca030d;
+                                                padding: 5px 20px;" [(ngModel)]="point.message" [ngModelOptions]="{standalone: true}"/></div>
+                                                 <p style="color: #ca030d;
+                                                 font-size: 1.2em;
+                                                 margin: auto;
+                                                 margin-right: 15px;">call</p>
+                                                <div style="width: 50%;"><input type="text" placeholder="Enter Phone" style="width: 95%;border-radius: 20px;
+                                                 border: 1px solid #ca030d;
+                                                 padding: 5px 20px;" [(ngModel)]="point.phone" [ngModelOptions]="{standalone: true}"/></div>
+                                               <i class="material-icons" (click)="addPoint(i)" style="font-size: 2em;
+                                               cursor: pointer;
+                                               margin: auto;
+                                               margin-right: 5px;
+                                               color: #28b08a;">add_circle</i>
+                                              <i class="material-icons" (click)="removePoint(i)" [class.noeffect]="i == 0" style="font-size: 2em;
+                                                    cursor: pointer;
+                                                    margin: auto;
+                                                    color: #ef5959;">remove_circle</i>
+                                            </div>
+                                      </div>
+                                      <div class="col-md-4">
+                                          <div class="row" style="height: 90%;">
+                                              <div class="col-md-12">
+                                                <ngui-map [options]="mapOptions_drive" (mapReady$)="onMapReadyDrive($event)" style="height: 100%;">
+                                                  <img *ngIf="selectLocation" [src]="'../../../../assets/img/hospitalMarker.png'" style="width: 40px;" style="width: 40px;
+                                                  margin: auto;
+                                                  position: absolute;
+                                                  top: 0;
+                                                  left: 0;
+                                                  bottom: 0;
+                                                  right: 0;" />
+                    
+                                                      <div class="zone-search-input" style="position: absolute;
+                                                      right: 11px;
+                                                      top: 11px;">
+                                                          <div>
+                                                              <input placeholder="Start typing..." id="search_address"
+                                                                  autocorrect="off" autocapitalize="off" spellcheck="off" type="text" style="display: table-cell;
+                                                                  vertical-align: middle;
+                                                                  margin-right: 10px;
+                                                                  width: 350px;
+                                                                  height: 30px;
+                                                                  padding: 0px 10px;
+                                                                  border: 1px solid #9129ac;
+                                                                  border-radius: 17px;" />
+                                                          </div>
+                                                      </div>
+                                                  </ngui-map>
+                                                </div>
+                                          </div>
+                                          <button type="button" class="btn btn-info pull-right" style="width: 100%;
+                                          height: 10%;" *ngIf="selectLocation" (click)="locationSelected()">Set Location</button>
+                                        </div>
+                                </div>
+                              
+                             
+                            </form>
+                        </ng-template>
+                      </mat-tab>
+                      <mat-tab label="All Today's/Pending Drives">
+                          <ng-template matTabContent>
+                            <form style="height: 100%;">
+                              <div class="row" style="height: 100%;padding: 10px 0px;">
+                                  <div class="col-md-7" style="border-right: 1px solid #ca030d;">
+                                      <label style="font-size: 1.2em;
+                                      font-weight: 700;
+                                      margin-top: 10px;">Today's/Pending Drives</label>
+                                          <p *ngIf="!drives.length" class="noresult">No drives for today.</p>
+                                          <div style="display: flex;
+                                          margin-bottom: 12px;
+                                          background: #fbfbfb;
+                                          padding: 5px 10px;
+                                          border-radius: 12px;
+                                          border: 1px solid #692178;" *ngFor="let drive of drives;let i = index">
+                                            <div class="col-md-9">
+                                              <p style="font-size: 1.1em;margin-top: 16px;
+                                              margin-bottom: 3px;
+                                              font-weight: 500;
+                                              color: #000;">{{ drive.work_log[0]['message'] + ' -> ' + drive.work_log[1]['message'] + ' ...' }}</p>
+                                              <p style="font-size: 0.9em;
+                                              margin-bottom: 3px;
+                                              font-weight: 400;
+                                              color: #414141;">Created at: {{ getFormatted(drive.assigned_time) }}</p>
+                                              <div style="display: flex;margin:7px 0px;">
+                                                <span *ngIf="!drive.type" style="font-size: 0.9em;
+                                                background: #0386d4;
+                                                color: #fff;
+                                                padding: 4px 13px;
+                                                border-radius: 25px;
+                                                margin-right: 10px;
+                                                font-weight: 400;">Regular Drive</span>
+                                                <span *ngIf="drive.type" style="font-size: 0.9em;
+                                                background: #00a0a0;
+                                                color: #fff;
+                                                padding: 4px 13px;
+                                                border-radius: 25px;
+                                                margin-right: 10px;
+                                                font-weight: 400;">Planned Drive</span>
+                                                <span *ngIf="drive.start_time" style="display: flex;margin-top: 5px;"><i class="material-icons" style="    font-size: 1.3em;
+                                                  line-height: initial;
+                                                  margin-right: 2px;
+                                                  color: #b17a00;">access_alarm</i><span style="    color: #b17900;
+                                                  font-weight: 500;">{{ getFormatted2(drive.start_time) }}</span></span>
+                                              </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <button type="button" class="btn btn-success" (click)="viewDrive(drive.work_log)" style="padding: 0;
+                                                height: 30px;
+                                                width: 100%;
+                                                text-transform: capitalize;
+                                                font-size: 0.9em;"><i class="material-icons" style="font-size: 1.2em;    line-height: 20px;
+                                                margin: 0;
+                                                margin-bottom: 2px;
+                                                cursor: pointer;
+                                                width: auto;
+                                                height: auto;
+                                                margin-right: 2px;">remove_red_eye</i> View Drive</button>
+                                                  <button type="button" class="btn btn-danger" (click)="delete_type = 'regular';did_holder=drive.aadid;tid_holder = drive.atid; confirm_delete.open()" style="padding: 0;
+                                                  height: 30px;
+                                                  width: 100%;
+                                                  text-transform: capitalize;
+                                                  font-size: 0.9em;"><i class="material-icons" style="font-size: 1.2em;    line-height: 30px;
+                                                  margin: 0;
+                                                  margin-bottom: 2px;
+                                                  cursor: pointer;
+                                                  width: auto;
+                                                  height: auto;
+                                                  margin-right: 2px;">delete</i> Delete Drive</button>
+                                            </div>
+                                          </div>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <label style="margin: 10px 0px;font-size: 1.2em;
+                                           font-weight: 700;">View Drive</label>
+                                        <div class="row" style="height: 90%;">
+                                            <div class="col-md-12">
+                                              <ngui-map [options]="mapOptions_driveview" (mapReady$)="onMapReadyDriveView($event)" style="height: 100%;">                  
+                                                  <custom-marker *ngFor="let pos of drivePoints" [position]="pos.position"
+                                                  style="position:relative;">
+                                                  <img [src]="'../../../../assets/img/' + pos.icon" style="width: 30px;" />
+                                                  <span
+                                                      style="box-shadow: 1px 1px 2px 1px #888888;border:1px solid rgb(14, 29, 53);border-radius:8px;padding:8px 5px;width:120px;background:rgb(255, 255, 255);position:absolute;top:-40px;right:40px;">
+                                                      <span style="margin: 3px;font-weight: 600;color:#ca030d !important">{{ pos.message }}</span><br>
+                                                      <span style="margin: 3px;color: rgb(0, 147, 17);" *ngIf="pos.phone"><i class="material-icons" style="font-size: 0.8em;margin-top:10px;top:5px;                                                      margin-right: 1px;">phone</i> {{ pos.phone }}</span>
+
+                                                  </span>
+                                              </custom-marker>
+                                                </ngui-map>
+                                              </div>
+                                        </div>
+                                      </div>
+                              </div>
+                            
+                           
+                          </form>
+                          </ng-template>
+                        </mat-tab>
+                        <mat-tab label="Planned Drives">
+                          <ng-template matTabContent>
+                            <form style="height: 100%;">
+                              <div class="row" style="height: 100%;padding: 10px 0px;">
+                                  <div class="col-md-7" style="border-right: 1px solid #ca030d;">
+                                      <label style="font-size: 1.2em;
+                                      font-weight: 700;
+                                      margin-top: 10px;">Planned Drives</label>
+                                          <p *ngIf="!planned_drives.length" class="noresult">No planned drive created.</p>
+                                          <div style="display: flex;
+                                          margin-bottom: 12px;
+                                          background: #fbfbfb;
+                                          padding: 5px 10px;
+                                          border-radius: 12px;
+                                          border: 1px solid #692178;" *ngFor="let drive of planned_drives;let i = index">
+                                            <div class="col-md-9">
+                                              <p style="font-size: 1.1em;margin-top: 16px;
+                                              margin-bottom: 3px;
+                                              font-weight: 500;
+                                              color: #000;">{{ drive.work_log[0]['message'] + ' -> ' + drive.work_log[1]['message'] + ' ...' }}</p>
+                                              <p style="font-size: 0.9em;
+                                              margin-bottom: 3px;
+                                              font-weight: 400;
+                                              color: #414141;">Drive is <span style="color: #ca030d;font-weight:500;">'{{ drive.type }}'</span>{{ drive.type == 'One Time Schedule' ? 'd on ' : drive.type == 'Weekly' ? ' for weekdays ' : drive.type == 'Monthly' ? ' for month dates as ' : '' }}<span style="color: #ca030d;font-weight:500;">{{ drive.type == 'Weekly' || drive.type == 'Monthly' ? drive.period : drive.type == 'One Time Schedule' ? getFormatted3(drive.period, drive.start_time)  : '' }}</span></p>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <button type="button" class="btn btn-success" (click)="viewDrive(drive.work_log)" style="padding: 0;
+                                                height: 30px;
+                                                width: 100%;
+                                                text-transform: capitalize;
+                                                font-size: 0.9em;"><i class="material-icons" style="font-size: 1.2em;    line-height: 20px;
+                                                margin: 0;
+                                                margin-bottom: 2px;
+                                                cursor: pointer;
+                                                width: auto;
+                                                height: auto;
+                                                margin-right: 2px;">remove_red_eye</i> View Drive</button>
+                                                  <button type="button" class="btn btn-danger" (click)="delete_type = 'planned';did_holder=drive.aadid;tid_holder = drive.patid; confirm_delete.open()" style="padding: 0;
+                                                  height: 30px;
+                                                  width: 100%;
+                                                  text-transform: capitalize;
+                                                  font-size: 0.9em;"><i class="material-icons" style="font-size: 1.2em;    line-height: 30px;
+                                                  margin: 0;
+                                                  margin-bottom: 2px;
+                                                  cursor: pointer;
+                                                  width: auto;
+                                                  height: auto;
+                                                  margin-right: 2px;">delete</i> Delete Drive</button>
+                                            </div>
+                                          </div>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <label style="margin: 10px 0px;font-size: 1.2em;
+                                           font-weight: 700;">View Drive</label>
+                                        <div class="row" style="height: 90%;">
+                                            <div class="col-md-12">
+                                              <ngui-map [options]="mapOptions_driveview" (mapReady$)="onMapReadyDriveView($event)" style="height: 100%;">                  
+                                                  <custom-marker *ngFor="let pos of drivePoints" [position]="pos.position"
+                                                  style="position:relative;">
+                                                  <img [src]="'../../../../assets/img/' + pos.icon" style="width: 30px;" />
+                                                  <span
+                                                      style="box-shadow: 1px 1px 2px 1px #888888;border:1px solid rgb(14, 29, 53);border-radius:8px;padding:8px 5px;width:120px;background:rgb(255, 255, 255);position:absolute;top:-40px;right:40px;">
+                                                      <span style="margin: 3px;font-weight: 600;color:#ca030d !important">{{ pos.message }}</span><br>
+                                                      <span style="margin: 3px;color: rgb(0, 147, 17);" *ngIf="pos.phone"><i class="material-icons" style="font-size: 0.8em;margin-top:10px;top:5px;                                                      margin-right: 1px;">phone</i> {{ pos.phone }}</span>
+
+                                                  </span>
+                                              </custom-marker>
+                                                </ngui-map>
+                                              </div>
+                                        </div>
+                                      </div>
+                              </div>
+                            
+                           
+                          </form>
+                          </ng-template>
+                        </mat-tab>
+                        <mat-tab label="Today's Completed Drives">
+                          <ng-template matTabContent>
+                            <form style="height: 100%;">
+                              <div class="row" style="height: 100%;padding: 10px 0px;">
+                                  <div class="col-md-7" style="border-right: 1px solid #ca030d;">
+                                      <label style="font-size: 1.2em;
+                                      font-weight: 700;
+                                      margin-top: 10px;">Today's Completed Drives</label>
+                                       <p *ngIf="!completed_drives.length" class="noresult">No completed drive of today.</p>
+                                          <div style="display: flex;
+                                          margin-bottom: 12px;
+                                          background: #fbfbfb;
+                                          padding: 5px 10px;
+                                          border-radius: 12px;
+                                          border: 1px solid #692178;" *ngFor="let drive of completed_drives;let i = index">
+                                            <div class="col-md-9">
+                                              <p style="font-size: 1.1em;margin-top: 16px;
+                                              margin-bottom: 3px;
+                                              font-weight: 500;
+                                              color: #000;">{{ drive.work_log[0]['message'] + ' -> ' + drive.work_log[1]['message'] + ' ...' }}<span *ngIf="drive.total_distance" style="margin-left: 5px;
+                                              color: #ffffff;
+                                              font-weight: 700;
+                                              background: #ca030d;
+                                              font-size: 0.8em;
+                                              padding: 4px 10px;
+                                              border-radius: 25px;
+                                              border: none;">{{ drive.total_distance }}</span></p>
+
+                                              <div style="display: flex;margin:4px 0px 5px 0px;">
+                                                <span style="display: flex;margin-top: 5px;"><i class="material-icons" style="font-size: 1.2em;
+                                                  line-height: initial;
+                                                  margin-right: 2px;
+                                                  color: #b17a00;">access_alarm</i><span style="color: #b17900;font-size: 0.9em;
+                                                  font-weight: 500;">{{ getFormatted1(drive.started_at) }} to {{ getFormatted1(drive.ended_at) }}</span></span>
+                                              </div>
+                                              <div *ngIf="drive.status == 'completed'" style="display: flex;margin:8px 0px 5px 0px;">
+                                                <span style="font-size: 0.9em;
+                                                font-weight: 500;"><span style="border: 1px dotted #1d88a9;
+                                                padding: 3px 10px;
+                                                border-radius: 25px;
+                                                color: #1988a9;">Drive took</span><span style="color: #2f70a9;">---</span><span style="color: #1a88a9;
+                                                font-weight: 600;
+                                                border: 1px dotted #3190ae;
+                                                padding: 3px 10px;
+                                                border-radius: 25px;">{{ drive.time_did }}</span></span>
+                                              </div>
+                                              <div *ngIf="drive.status == 'completed'" style="display: flex;margin:10px 0px 5px 0px;">
+                                                <span style="font-size: 0.9em;
+                                                font-weight: 500;"><span style="border: 1px dotted #0e9626;
+                                                  padding: 3px 10px;
+                                                  border-radius: 25px;
+                                                  color: #1d8631;">Should be</span><span style="color: #228633;">---</span><span style="color: #238734;
+                                                border: 1px dotted #278837;
+                                                padding: 3px 10px;
+                                                border-radius: 25px;
+                                                font-weight: 600;">{{ drive.time_should }} (Using optimized route)</span></span>
+                                              </div>
+
+
+                                            </div>
+                                            <div class="col-md-3">
+                                                <button *ngIf="drive.status == 'completed'" type="button" class="btn btn-success" (click)="viewDrive(drive.work_log)" style="padding: 0;
+                                                height: 30px;
+                                                width: 100%;
+                                                text-transform: capitalize;
+                                                font-size: 0.9em;"><i class="material-icons" style="font-size: 1.2em;    line-height: 20px;
+                                                margin: 0;
+                                                margin-bottom: 2px;
+                                                cursor: pointer;
+                                                width: auto;
+                                                height: auto;
+                                                margin-right: 2px;">remove_red_eye</i> View Completed Drive</button>
+                                                <button *ngIf="drive.status == 'rejected'" type="button" class="btn btn-danger" (click)="viewDrive(drive.work_log)" style="padding: 0;
+                                                height: 30px;
+                                                width: 100%;
+                                                text-transform: capitalize;
+                                                font-size: 0.9em;"><i class="material-icons" style="font-size: 1.2em;    line-height: 20px;
+                                                margin: 0;
+                                                margin-bottom: 2px;
+                                                cursor: pointer;
+                                                width: auto;
+                                                height: auto;
+                                                margin-right: 2px;">remove_red_eye</i> View Rejected Drive</button>
+                                                <button *ngIf="drive.status == 'completed' && drive.vehicle" type="button" class="btn btn-info" (click)="viewVehicle(drive.vehicle)" style="padding: 0;
+                                                height: 30px;
+                                                width: 100%;
+                                                text-transform: capitalize;
+                                                font-size: 0.9em;"><i class="material-icons" style="font-size: 1.2em;    line-height: 20px;
+                                                margin: 0;
+                                                margin-bottom: 2px;
+                                                cursor: pointer;
+                                                width: auto;
+                                                height: auto;
+                                                margin-right: 2px;">directions_car</i> View Vehicle Details</button>
+                                                <br>
+                                                  <span *ngIf="drive.status == 'completed'" style="font-size: 1em;
+                                                  color: #157719;
+                                                  margin: 5px 0px;
+                                                  text-align: center;
+                                                  float: right;
+                                                  font-weight: 500;">Completed</span>
+                                                  <span *ngIf="drive.status == 'rejected'" style="font-size: 1em;
+                                                  color: #dc0f00;
+                                                  margin: 5px 0px;
+                                                  text-align: center;
+                                                  float: right;
+                                                  font-weight: 500;">Rejected</span>
+                                            </div>
+                                          </div>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <label style="margin: 10px 0px;font-size: 1.2em;
+                                           font-weight: 700;">View Drive</label>
+                                        <div class="row" style="height: 90%;">
+                                            <div class="col-md-12">
+                                              <ngui-map [options]="mapOptions_driveview" (mapReady$)="onMapReadyDriveView($event)" style="height: 100%;">                  
+                                                  <custom-marker *ngFor="let pos of drivePoints" [position]="pos.position"
+                                                  style="position:relative;">
+                                                  <img [src]="'../../../../assets/img/' + pos.icon" style="width: 30px;" />
+                                                  <span
+                                                      style="box-shadow: 1px 1px 2px 1px #888888;border:1px solid rgb(14, 29, 53);border-radius:8px;padding:8px 5px;width:120px;background:rgb(255, 255, 255);position:absolute;top:-40px;right:40px;">
+                                                      <span style="margin: 3px;font-weight: 600;color:#ca030d !important">{{ pos.message }}</span><br>
+                                                      <span style="margin: 3px;color: rgb(0, 147, 17);" *ngIf="pos.phone"><i class="material-icons" style="font-size: 0.8em;margin-top:10px;top:5px;                                                      margin-right: 1px;">phone</i> {{ pos.phone }}</span>
+
+                                                  </span>
+                                              </custom-marker>
+                                                </ngui-map>
+                                              </div>
+                                        </div>
+                                      </div>
+                              </div>
+                            
+                           
+                          </form>
+                          </ng-template>
+                        </mat-tab>
+                </mat-tab-group>
+
+
+
+                
+              </div>
+            </div>
+            </div>
+      </div>
+     
+      <button (click)="adddrive.close()" class="pull-right" style="background: #c7c7c7;
+      color: #525252;
+      padding: 11px 20px;
+      font-size: 1.1em;
+      margin-right: 10px;
+      border-radius: 5px;
+      border: none;
+      outline: none;
+      cursor: pointer;">Close</button>
+       <button type="submit" class="btn btn-primary pull-right" (click)="createDrive()" style="margin: 0;text-transform: capitalize;font-weight: 500;font-size: 1em;
+       margin-right: 12px;" *ngIf="selectedIndex == 0">{{ planned_drive ? 'Create Planned Drive' : 'Create Regular Drive' }}</button>
+    </ngx-smart-modal>
+
+
+
+    <ngx-smart-modal #confirm_delete identifier="confirm_delete" class="confirm_delete short">
+        <h1 style="text-align: center;height: 5%;
+        margin-bottom: 20px;">Confirm Delete?</h1>
+        <div style="margin-bottom: 30px;margin-top: 20px;">
+          <p>Deleting drive will result in failure of this trip if driver has already started this drive, confirm to delete?</p>
+        </div>
+        <button (click)="confirm_delete.close()" class="pull-right" style="background: #c7c7c7;
+        color: #525252;
+        padding: 11px 20px;
+        font-size: 1.1em;
+        margin-right: 10px;
+        border-radius: 5px;
+        border: none;
+        outline: none;
+        cursor: pointer;">Cancel</button>
+         <button type="submit" class="btn btn-danger pull-right" style="margin: 0;
+         margin-right: 12px;" (click)="delete_drive()">Delete Drive</button>
+      </ngx-smart-modal>
+
+
+      <ngx-smart-modal #send_notification identifier="send_notification" class="send_notification short">
+          <h1 style="text-align: center;height: 5%;
+          margin-bottom: 20px;">Send Notification to {{ dname_holder }}</h1>
+          <div style="margin-bottom: 30px;margin-top: 20px;">
+              <label style="font-size: 1.2em;
+              font-weight: 700;
+              margin-top: 10px;">Notifcation Details:</label>
+              <div class="row">
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label class="bmd-label-floating">Notification Title</label>
+                      <input type="text" class="form-control" [(ngModel)]="title" [ngModelOptions]="{standalone: true}">
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                      <div class="form-group">
+                          <label class="bmd-label-floating">Notification Message</label>
+                          <input type="text" class="form-control" [(ngModel)]="body" [ngModelOptions]="{standalone: true}">
+                        </div>
+                  </div>
+                </div>
+          </div>
+          <button (click)="send_notification.close()" class="pull-right" style="background: #c7c7c7;
+          color: #525252;
+          padding: 11px 20px;
+          font-size: 1.1em;
+          margin-right: 10px;
+          border-radius: 5px;
+          border: none;
+          outline: none;
+          cursor: pointer;">Cancel</button>
+           <button type="submit" class="btn btn-success pull-right" style="margin: 0; text-transform: capitalize;
+           margin-right: 12px;" (click)="push_notification()" [disabled]="!title || !body">Push Notification Now</button>
+        </ngx-smart-modal>
+
+
+        
+
+        <ngx-smart-modal #show_vehicle identifier="show_vehicle" class="show_vehicle short">
+            <h1 style="text-align: center;height: 5%;
+            margin-bottom: 20px;">Vehicle Details</h1>
+            <div style="margin-bottom: 30px;margin-top: 20px;">
+                <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label class="bmd-label-floating labelvehicle">Vehicle Name</label>
+                        <p>{{ vname }}</p>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="bmd-label-floating labelvehicle">Vehicle Color</label>
+                            <p>{{ vcolor }}</p>
+                          </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label class="bmd-label-floating labelvehicle">Vehicle Number</label>
+                          <p>{{ vnumber }}</p>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                          <div class="form-group">
+                              <label class="bmd-label-floating labelvehicle">Vehicle Registration Number</label>
+                              <p>{{ vreg_no }}</p>
+                            </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label class="bmd-label-floating labelvehicle">Vehicle Joining Date</label>
+                            <p>{{ vjoining_date }}</p>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="bmd-label-floating labelvehicle">Vehicle Fuel Capacity</label>
+                                <p>{{ vtankcapacity }}</p>
+                              </div>
+                        </div>
+                      </div>
+            </div>
+            <button (click)="show_vehicle.close()" class="btn btn-primary pull-right" style="
+            padding: 11px 20px;
+            font-size: 1.1em;
+            margin-right: 10px;
+            border-radius: 5px;
+            border: none;
+            outline: none;
+            cursor: pointer;">Okay</button>
+          </ngx-smart-modal>

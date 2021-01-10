@@ -1,0 +1,343 @@
+<div class="wrapper ">
+    <app-navigation [current]="'drivers'"></app-navigation>
+    <div class="main-panel">
+     <app-header [current]="'Manage Drivers'"></app-header>
+     
+      <div class="content">
+        <div class="container-fluid">
+            <button type="submit" class="btn btn-primary" (click)="add_dv.open();resetAddData()"><i class="material-icons" style="font-size:1.7em;margin: 0;
+              margin-bottom: 2px;cursor:pointer;">add</i> Add Driver</button>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="card">
+                <div class="card-header card-header-primary">
+                  <h4 class="card-title ">Drivers</h4>
+                  <p class="card-category"> You can add, edit and delete the drivers</p>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead class=" text-primary">
+                        <th>
+                          Driver Id/Scheme
+                        </th>
+                        <th>
+                          Driver Name & DOB
+                        </th>
+                        <th>
+                          Driver Email & Phone
+                        </th>
+                        <th>
+                            Driver Licence No/Exp Date
+                        </th>
+                        <th>
+                          Driver Joining Date
+                        </th>
+                        <th>
+                          Actions
+                        </th>
+                        
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let dv of dvs">
+                          <td>
+                            {{ dv.aadid }}<br>
+                           <span *ngIf="dv.independent == 'yes'" style="    font-size: 0.9em;
+                           color: #ca030f;
+                           font-weight: 400;">Independent</span>
+                           <span *ngIf="dv.independent == 'no'" style="    font-size: 0.9em;
+                           color: #000000;
+                           font-weight: 400;">Not Independent</span> 
+                          </td>
+                          <td>
+                              {{ dv.dname }}<br>
+                              {{ getFormatted(dv.ddob) }}
+                            </td>
+                          <td>
+                              {{ dv.demail }}<br>
+                              {{ dv.dphone }}
+                          </td>  
+                          <td>
+                            <div *ngIf="dv.dlicence && dv.dlicence_exp">
+                              No: {{ dv.dlicence }}<br>
+                              Exp: {{ getFormatted(dv.dlicence_exp) }}
+                              </div>
+                          </td>                          
+                          <td>
+                            {{ getFormatted(dv.djoining) }}
+                          </td>
+                          <td class="td-actions text-center">
+                              <button type="button" rel="tooltip" title="Edit Task" class="btn btn-primary btn-link btn-sm" (click)="editDv(dv)">
+                                  <i class="material-icons">edit</i>
+                                </button>
+                                <button type="button" rel="tooltip" title="Remove" class="btn btn-danger btn-link btn-sm" (click)="did = dv.aadid;confirm_delete.open()">
+                                  <i class="material-icons">close</i>
+                                </button>
+                          </td>
+                        </tr>
+                        
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <footer class="footer">
+        <div class="container-fluid">
+          <div class="copyright float-right">
+            &copy; Copyright, DriveCraft Labs
+            <script>
+              document.write(new Date().getFullYear())
+            </script>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+
+ 
+
+
+    <ngx-smart-modal #add_dv identifier="add_dv" class="add_dv short">
+        <h1 style="text-align: center;height: 5%;
+        margin-bottom: 20px;">Add new Driver</h1>
+        <div style="height: 80%;margin-bottom: 40px;">
+            <div class="col-md-12" style="height: 100%;">
+                <div class="card" style="height: 100%;display: block;
+                padding-bottom: 32px;">
+                  <div class="card-header card-header-primary">
+                    <h4 class="card-title">Enter Driver Details</h4>
+                  </div>
+                  <div class="card-body" style="height: 100%;">
+                    <form style="height: 100%;">
+                        <div class="row" style="height: 100%;">
+                            <div class="col-md-12">
+                                <label style="font-size: 1.2em;
+                                font-weight: 700;
+                                margin-top: 10px;">Driver Details:</label>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                      <div class="form-group">
+                                        <label class="bmd-label-floating">Driver Name</label>
+                                        <input type="text" class="form-control" [(ngModel)]="dv_name" [ngModelOptions]="{standalone: true}">
+                                      </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="bmd-label-floating">Driver Date of Birth</label>
+                                            <input type="date" class="form-control" [(ngModel)]="dv_dob" [ngModelOptions]="{standalone: true}">
+                                          </div>
+                                    </div>
+                                  </div>
+                                  <div class="row">
+            
+                                      <div class="col-md-6">
+                                          <div class="form-group">
+                                            <label class="bmd-label-floating">Driver Email</label>
+                                            <input type="email" class="form-control" [(ngModel)]="dv_email" [ngModelOptions]="{standalone: true}">
+                                          </div>
+                                        </div>
+                                    <div class="col-md-6">
+                                      <div class="form-group">
+                                        <label class="bmd-label-floating">Set Driver Password</label>
+                                        <input type="tel" class="form-control" [(ngModel)]="dv_password" [ngModelOptions]="{standalone: true}">
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="row">
+            
+                                      <div class="col-md-6">
+                                          <div class="form-group">
+                                            <label class="bmd-label-floating">Driver Phone</label>
+                                            <input type="email" class="form-control" [(ngModel)]="dv_phone" [ngModelOptions]="{standalone: true}">
+                                          </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                              <label class="bmd-label-floating">Driver Licence Number</label>
+                                              <input type="email" class="form-control" [(ngModel)]="dv_licence" [ngModelOptions]="{standalone: true}">
+                                            </div>
+                                          </div>
+                                  </div>
+                                  <div class="row">
+            
+                                      <div class="col-md-6">
+                                          <div class="form-group">
+                                            <label class="bmd-label-floating">Driver Licence Expiry</label>
+                                            <input type="date" class="form-control" [(ngModel)]="dv_licence_exp" [ngModelOptions]="{standalone: true}">
+                                          </div>
+                                        </div>
+                                  </div>
+                                  <div class="row" style="margin-top: 20px;">
+                                      <div class="form-check" style="margin-top: 0px;">
+                                        <label class="form-check-label">
+                                          <input class="form-check-input" type="checkbox" [(ngModel)]="independent" [ngModelOptions]="{standalone: true}">
+                                          <span class="form-check-sign">
+                                            <span class="check"></span>
+                                          </span>
+                                        </label>
+                                      </div> Independent Driver? (Can create and assign drives/tasks to self)
+                                  </div>
+                                 
+                              </div>
+                        </div>
+                      
+                     
+                    </form>
+                  </div>
+                </div>
+              </div>
+        </div>
+       
+        <button (click)="add_dv.close()" class="pull-right" style="background: #c7c7c7;
+        color: #525252;
+        padding: 11px 20px;
+        font-size: 1.1em;
+        margin-right: 10px;
+        border-radius: 5px;
+        border: none;
+        outline: none;
+        cursor: pointer;">Close</button>
+         <button type="submit" class="btn btn-primary pull-right" style="margin: 0;
+         margin-right: 12px;" (click)="add_dv_request()">Add Driver</button>
+      </ngx-smart-modal>
+
+
+
+
+
+
+
+      <ngx-smart-modal #edit_dv identifier="edit_dv" class="edit_dv short">
+          <h1 style="text-align: center;height: 5%;
+          margin-bottom: 20px;">Edit Driver</h1>
+          <div style="height: 80%;margin-bottom: 40px;">
+              <div class="col-md-12" style="height: 100%;">
+                  <div class="card" style="height: 100%;display: block;
+                  padding-bottom: 32px;">
+                    <div class="card-header card-header-primary">
+                      <h4 class="card-title">Edit Driver Details</h4>
+                    </div>
+                    <div class="card-body" style="height: 100%;">
+                        <form style="height: 100%;">
+                            <div class="row" style="height: 100%;">
+                                <div class="col-md-12">
+                                    <label style="font-size: 1.2em;
+                                    font-weight: 700;
+                                    margin-top: 10px;">Driver Details:</label>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                          <div class="form-group">
+                                            <label class="bmd-label-floating">Driver Name</label>
+                                            <input type="text" class="form-control" [(ngModel)]="dv_name" [ngModelOptions]="{standalone: true}">
+                                          </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="bmd-label-floating">Driver Date of Birth</label>
+                                                <input type="date" class="form-control" [(ngModel)]="dv_dob" [ngModelOptions]="{standalone: true}">
+                                              </div>
+                                        </div>
+                                      </div>
+                                      <div class="row">
+                
+                                          <div class="col-md-6">
+                                              <div class="form-group">
+                                                <label class="bmd-label-floating">Driver Email</label>
+                                                <input type="email" class="form-control" [(ngModel)]="dv_email" [ngModelOptions]="{standalone: true}">
+                                              </div>
+                                            </div>
+                                        <div class="col-md-6">
+                                          <div class="form-group">
+                                            <label class="bmd-label-floating">New Driver Password</label>
+                                            <input type="tel" class="form-control" [(ngModel)]="dv_password" [ngModelOptions]="{standalone: true}">
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div class="row">
+                
+                                          <div class="col-md-6">
+                                              <div class="form-group">
+                                                <label class="bmd-label-floating">Driver Phone</label>
+                                                <input type="email" class="form-control" [(ngModel)]="dv_phone" [ngModelOptions]="{standalone: true}">
+                                              </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                  <label class="bmd-label-floating">Driver Licence Number</label>
+                                                  <input type="email" class="form-control" [(ngModel)]="dv_licence" [ngModelOptions]="{standalone: true}">
+                                                </div>
+                                              </div>
+                                      </div>
+                                      <div class="row">
+                
+                                          <div class="col-md-6">
+                                              <div class="form-group">
+                                                <label class="bmd-label-floating">Driver Licence Expiry</label>
+                                                <input type="date" class="form-control" [(ngModel)]="dv_licence_exp" [ngModelOptions]="{standalone: true}">
+                                              </div>
+                                            </div>
+                                      </div>
+                                      <div class="row" style="margin-top: 20px;">
+                                        <div class="form-check" style="margin-top: 0px;">
+                                          <label class="form-check-label">
+                                            <input class="form-check-input" type="checkbox" [(ngModel)]="independent" [ngModelOptions]="{standalone: true}">
+                                            <span class="form-check-sign">
+                                              <span class="check"></span>
+                                            </span>
+                                          </label>
+                                        </div> Independent Driver? (Can create and assign drives/tasks to self)
+                                    </div>
+                                     
+                                  </div>
+                            </div>
+                          
+                         
+                        </form>
+                      </div>
+                  </div>
+                </div>
+          </div>
+         
+          <button (click)="edit_dv.close()" class="pull-right" style="background: #c7c7c7;
+          color: #525252;
+          padding: 11px 20px;
+          font-size: 1.1em;
+          margin-right: 10px;
+          border-radius: 5px;
+          border: none;
+          outline: none;
+          cursor: pointer;">Close</button>
+           <button type="submit" class="btn btn-primary pull-right" style="margin: 0;
+           margin-right: 12px;" (click)="edit_dv_request()">Update Driver</button>
+        </ngx-smart-modal>
+
+
+
+
+
+
+        <ngx-smart-modal #confirm_delete identifier="confirm_delete" class="confirm_delete short">
+            <h1 style="text-align: center;height: 5%;
+            margin-bottom: 20px;">Confirm Delete?</h1>
+            <div style="margin-bottom: 30px;margin-top: 20px;">
+              <p>Deleting Driver will result in deletion of all their tracking data, current tasks and completed tasks, Confirm to delete this driver? </p>
+            </div>
+            <button (click)="confirm_delete.close()" class="pull-right" style="background: #c7c7c7;
+            color: #525252;
+            padding: 11px 20px;
+            font-size: 1.1em;
+            margin-right: 10px;
+            border-radius: 5px;
+            border: none;
+            outline: none;
+            cursor: pointer;">Cancel</button>
+             <button type="submit" class="btn btn-danger pull-right" style="margin: 0;
+             margin-right: 12px;" (click)="delete_dv()">Delete Driver</button>
+          </ngx-smart-modal>

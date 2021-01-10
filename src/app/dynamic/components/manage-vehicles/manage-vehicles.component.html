@@ -1,0 +1,352 @@
+<div class="wrapper ">
+    <app-navigation [current]="'vehicles'"></app-navigation>
+    <div class="main-panel">
+     <app-header [current]="'Manage Vehicles'"></app-header>
+     
+      <div class="content">
+        <div class="container-fluid">
+            <button type="submit" class="btn btn-primary" (click)="add_dv.open();resetAddData()"><i class="material-icons" style="font-size:1.7em;margin: 0;
+              margin-bottom: 2px;cursor:pointer;">add</i> Add Vehicle</button>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="card">
+                <div class="card-header card-header-primary">
+                  <h4 class="card-title ">Vehicles</h4>
+                  <p class="card-category"> You can add, edit and delete the vehicles</p>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead class=" text-primary">
+                        <th>
+                          Vehicle Id
+                        </th>
+                        <th>
+                          Vehicle Name & Specifications
+                        </th>
+                        <th>
+                          Vehicle Number & Registeration
+                        </th>
+                        <th>
+                          Vehicle Other Details
+                        </th>
+                        <th>
+                          Vehicle Adding Date
+                        </th>
+                        <th>
+                          Actions
+                        </th>
+                        
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let dv of dvs">
+                          <td>
+                            {{ dv.dvid }}
+                          </td>
+                          <td>
+                            {{ dv.dvname + (dv.dvcolor ? ' - ' : '') + (dv.dvcolor ? dv.dvcolor : '') }}<br>
+                            <p *ngIf="dv.dvtankcapacity">Tank Capacity: {{ dv.dvtankcapacity }} Ltrs</p>
+                        </td>
+                        <td>
+                            <p *ngIf="dv.dvnumber">Vehicle No: {{ dv.dvnumber }}</p>
+                            <p *ngIf="dv.dvreg_no">Reg No: {{ dv.dvreg_no }}</p>
+                            <p *ngIf="dv.dvreg_date">Reg Date: {{ dv.dvreg_date }}</p>
+                        </td>  
+                        <td>
+                              <p *ngIf="dv.dvinsurance_no">Insurance No: {{ dv.dvinsurance_no }}</p>
+                              <p *ngIf="dv.dvlast_serviced">Last Serviced: {{ dv.dvlast_serviced }}</p>
+                              <p *ngIf="dv.dvtax_renewals">Tax Renewals: {{ dv.dvtax_renewals }}</p>
+                          </td>
+                          <td>
+                            {{ dv.djoining_date }}
+                          </td>
+                          <td class="td-actions text-center">
+                              <button type="button" rel="tooltip" title="Edit Task" class="btn btn-primary btn-link btn-sm" (click)="editDv(dv)">
+                                  <i class="material-icons">edit</i>
+                                </button>
+                                <button type="button" rel="tooltip" title="Remove" class="btn btn-danger btn-link btn-sm" (click)="did = dv.dvid;confirm_delete.open()">
+                                  <i class="material-icons">close</i>
+                                </button>
+                          </td>
+                        </tr>
+                        
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <footer class="footer">
+        <div class="container-fluid">
+          <div class="copyright float-right">
+            &copy; Copyright, DriveCraft Labs
+            <script>
+              document.write(new Date().getFullYear())
+            </script>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+
+ 
+
+
+    <ngx-smart-modal #add_dv identifier="add_dv" class="add_dv short">
+        <h1 style="text-align: center;height: 5%;
+        margin-bottom: 20px;">Add new Vehicle</h1>
+        <div style="height: 80%;margin-bottom: 40px;">
+            <div class="col-md-12" style="height: 100%;">
+                <div class="card" style="height: 100%;display: block;
+                padding-bottom: 32px;">
+                  <div class="card-header card-header-primary">
+                    <h4 class="card-title">Enter Vehicle Details</h4>
+                  </div>
+                  <div class="card-body" style="height: 100%;">
+                    <form style="height: 100%;">
+                        <div class="row" style="height: 100%;">
+                            <div class="col-md-12">
+                                
+                                <label style="font-size: 1.2em;
+                                font-weight: 700;
+                                margin-top: 10px;">Vehicle Details:</label>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                           <label class="bmd-label-floating">Vehicle Name</label>
+                                           <input type="text" class="form-control"  [(ngModel)]="dvname" [ngModelOptions]="{standalone: true}">
+                                         </div>
+                                       </div>
+                                    <div class="col-md-6">
+                                      <div class="form-group">
+                                        <label class="bmd-label-floating">Vehicle Number</label>
+                                        <input type="text" class="form-control"  [(ngModel)]="dv_number" [ngModelOptions]="{standalone: true}">
+                                      </div>
+                                    </div>
+                                  </div>
+
+
+                                  <div class="row">
+                                      <div class="col-md-6">
+                                          <div class="form-group">
+                                             <label class="bmd-label-floating">Vehicle Color</label>
+                                             <input type="text" class="form-control"  [(ngModel)]="dvcolor" [ngModelOptions]="{standalone: true}">
+                                           </div>
+                                         </div>
+                                      <div class="col-md-6">
+                                        <div class="form-group">
+                                          <label class="bmd-label-floating">Vehicle Tank Capacity (Ltrs)</label>
+                                          <input type="text" class="form-control"  [(ngModel)]="dvtankcapacity" [ngModelOptions]="{standalone: true}">
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <label style="font-size: 1.2em;
+                                    font-weight: 700;
+                                    margin-top: 10px;">Vehicle Documents:</label>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                               <label class="bmd-label-floating">Vehicle Registration Number</label>
+                                               <input type="text" class="form-control"  [(ngModel)]="dvreg_no" [ngModelOptions]="{standalone: true}">
+                                             </div>
+                                           </div>
+                                        <div class="col-md-6">
+                                          <div class="form-group">
+                                            <label class="bmd-label-floating">Vehicle Registration Date</label>
+                                            <input type="date" class="form-control"  [(ngModel)]="dvreg_date" [ngModelOptions]="{standalone: true}">
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                      <div class="row">
+                                          <div class="col-md-6">
+                                              <div class="form-group">
+                                                 <label class="bmd-label-floating">Vehicle Insurance Number</label>
+                                                 <input type="text" class="form-control"  [(ngModel)]="dvinsurance_no" [ngModelOptions]="{standalone: true}">
+                                               </div>
+                                             </div>
+                                          <div class="col-md-6">
+                                            <div class="form-group">
+                                              <label class="bmd-label-floating">Vehicle Last Service Date</label>
+                                              <input type="date" class="form-control"  [(ngModel)]="dvlast_serviced" [ngModelOptions]="{standalone: true}">
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                   <label class="bmd-label-floating">Vehicle Tax Renewals</label>
+                                                   <input type="text" class="form-control"  [(ngModel)]="dvtax_renewals" [ngModelOptions]="{standalone: true}">
+                                                 </div>
+                                               </div>
+                                          </div>
+                              </div>
+                        </div>
+                      
+                     
+                    </form>
+                  </div>
+                </div>
+              </div>
+        </div>
+       
+        <button (click)="add_dv.close()" class="pull-right" style="background: #c7c7c7;
+        color: #525252;
+        padding: 11px 20px;
+        font-size: 1.1em;
+        margin-right: 10px;
+        border-radius: 5px;
+        border: none;
+        outline: none;
+        cursor: pointer;">Close</button>
+         <button type="submit" class="btn btn-primary pull-right" style="margin: 0;
+         margin-right: 12px;" (click)="add_dv_request()">Add Vehicle</button>
+      </ngx-smart-modal>
+
+
+
+
+
+
+
+      <ngx-smart-modal #edit_dv identifier="edit_dv" class="edit_dv short">
+          <h1 style="text-align: center;height: 5%;
+          margin-bottom: 20px;">Edit Vehicle</h1>
+          <div style="height: 80%;margin-bottom: 40px;">
+              <div class="col-md-12" style="height: 100%;">
+                  <div class="card" style="height: 100%;display: block;
+                  padding-bottom: 32px;">
+                    <div class="card-header card-header-primary">
+                      <h4 class="card-title">Edit Vehicle Details</h4>
+                    </div>
+                    <div class="card-body" style="height: 100%;">
+                        <form style="height: 100%;">
+                            <div class="row" style="height: 100%;">
+                                <div class="col-md-12">
+                                   
+                                     
+                                      <label style="font-size: 1.2em;
+                                      font-weight: 700;
+                                      margin-top: 10px;">Vehicle Details:</label>
+                                      <div class="row">
+                                          <div class="col-md-6">
+                                              <div class="form-group">
+                                                 <label class="bmd-label-floating">Vehicle Name</label>
+                                                 <input type="text" class="form-control"  [(ngModel)]="dvname" [ngModelOptions]="{standalone: true}">
+                                               </div>
+                                             </div>
+                                          <div class="col-md-6">
+                                            <div class="form-group">
+                                              <label class="bmd-label-floating">Vehicle Number</label>
+                                              <input type="text" class="form-control"  [(ngModel)]="dv_number" [ngModelOptions]="{standalone: true}">
+                                            </div>
+                                          </div>
+                                        </div>
+
+
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                   <label class="bmd-label-floating">Vehicle Color</label>
+                                                   <input type="text" class="form-control"  [(ngModel)]="dvcolor" [ngModelOptions]="{standalone: true}">
+                                                 </div>
+                                               </div>
+                                            <div class="col-md-6">
+                                              <div class="form-group">
+                                                <label class="bmd-label-floating">Vehicle Tank Capacity (Ltrs)</label>
+                                                <input type="text" class="form-control"  [(ngModel)]="dvtankcapacity" [ngModelOptions]="{standalone: true}">
+                                              </div>
+                                            </div>
+                                          </div>
+                                          <label style="font-size: 1.2em;
+                                          font-weight: 700;
+                                          margin-top: 10px;">Vehicle Documents:</label>
+                                          <div class="row">
+                                              <div class="col-md-6">
+                                                  <div class="form-group">
+                                                     <label class="bmd-label-floating">Vehicle Registration Number</label>
+                                                     <input type="text" class="form-control"  [(ngModel)]="dvreg_no" [ngModelOptions]="{standalone: true}">
+                                                   </div>
+                                                 </div>
+                                              <div class="col-md-6">
+                                                <div class="form-group">
+                                                  <label class="bmd-label-floating">Vehicle Registration Date</label>
+                                                  <input type="date" class="form-control"  [(ngModel)]="dvreg_date" [ngModelOptions]="{standalone: true}">
+                                                </div>
+                                              </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                       <label class="bmd-label-floating">Vehicle Insurance Number</label>
+                                                       <input type="text" class="form-control"  [(ngModel)]="dvinsurance_no" [ngModelOptions]="{standalone: true}">
+                                                     </div>
+                                                   </div>
+                                                <div class="col-md-6">
+                                                  <div class="form-group">
+                                                    <label class="bmd-label-floating">Vehicle Last Service Date</label>
+                                                    <input type="date" class="form-control"  [(ngModel)]="dvlast_serviced" [ngModelOptions]="{standalone: true}">
+                                                  </div>
+                                                </div>
+                                              </div>
+
+                                              <div class="row">
+                                                  <div class="col-md-6">
+                                                      <div class="form-group">
+                                                         <label class="bmd-label-floating">Vehicle Tax Renewals</label>
+                                                         <input type="text" class="form-control"  [(ngModel)]="dvtax_renewals" [ngModelOptions]="{standalone: true}">
+                                                       </div>
+                                                     </div>
+                                                </div>
+                                  </div>
+                            </div>
+                          
+                         
+                        </form>
+                      </div>
+                  </div>
+                </div>
+          </div>
+         
+          <button (click)="edit_dv.close()" class="pull-right" style="background: #c7c7c7;
+          color: #525252;
+          padding: 11px 20px;
+          font-size: 1.1em;
+          margin-right: 10px;
+          border-radius: 5px;
+          border: none;
+          outline: none;
+          cursor: pointer;">Close</button>
+           <button type="submit" class="btn btn-primary pull-right" style="margin: 0;
+           margin-right: 12px;" (click)="edit_dv_request()">Update Vehicle</button>
+        </ngx-smart-modal>
+
+
+
+
+
+
+        <ngx-smart-modal #confirm_delete identifier="confirm_delete" class="confirm_delete short">
+            <h1 style="text-align: center;height: 5%;
+            margin-bottom: 20px;">Confirm Delete?</h1>
+            <div style="margin-bottom: 30px;margin-top: 20px;">
+              <p>Confirm to delete this vehicle? </p>
+            </div>
+            <button (click)="confirm_delete.close()" class="pull-right" style="background: #c7c7c7;
+            color: #525252;
+            padding: 11px 20px;
+            font-size: 1.1em;
+            margin-right: 10px;
+            border-radius: 5px;
+            border: none;
+            outline: none;
+            cursor: pointer;">Cancel</button>
+             <button type="submit" class="btn btn-danger pull-right" style="margin: 0;
+             margin-right: 12px;" (click)="delete_dv()">Delete Vehicle</button>
+          </ngx-smart-modal>
