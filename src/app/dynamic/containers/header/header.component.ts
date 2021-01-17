@@ -27,7 +27,6 @@ export class HeaderComponent implements OnInit {
   edit_phone
   edit_email
   email
-  edit_hospital
   hosp_id
   edit_password
   user_obj_holder = {};
@@ -42,7 +41,6 @@ export class HeaderComponent implements OnInit {
             this.name = userObj['uname'];
             this.role = userObj['u_role'];
             this.edit_name = userObj['uname'];
-            this.edit_hospital = userObj['hid'];
             this.hosp_id = userObj['hid'];
             this.edit_email = userObj['uemail'];
             this.email = userObj['uemail'];
@@ -55,27 +53,12 @@ export class HeaderComponent implements OnInit {
 
   ngOnInit(): void {
     this.get_notifications();
-    setTimeout(() => {
-      this.http.post('https://drivecraftlab.com/backend/api/hospital/hospital_get.php', {}).pipe(map(data => {
-        if (data['status_code'] === 200) {
-            data['hospitals'].forEach(element => {
-                if(element.hid == this.edit_hospital){
-                  this.edit_hospital = element.hname;
-                }
-            });
-        }else{
-            this.edit_hospital = 0;
-        }
-
-      })).subscribe(result => {
-      });
-    },500)
   }
   get_notifications(){
     if(+this.hosp_id){
     this.spinner.show();
     let req_body = { hid: this.hosp_id }
-    this.http.post('https://drivecraftlab.com/backend/api/notifications/get_notifications.php', req_body).pipe(map(data => {
+    this.http.post('https://drivecraftlab.com/backend_gis/api/notifications/get_notifications.php', req_body).pipe(map(data => {
       this.spinner.hide();
       if (data['status_code'] === 200) {
         this.notis = data['notifications']
@@ -92,7 +75,7 @@ export class HeaderComponent implements OnInit {
   }
   logout(){
     this.spinner.show();
-    this.http.post('https://drivecraftlab.com/backend/api/user/user_logout.php?uid=' + this.edit_id, {}).pipe(map(data => {
+    this.http.post('https://drivecraftlab.com/backend_gis/api/user/user_logout.php?uid=' + this.edit_id, {}).pipe(map(data => {
       this.spinner.hide();
       if (data['status_code'] === 200) {
          this.rootstore.dispatch(new CommonActions.Unload({}));
@@ -105,28 +88,6 @@ export class HeaderComponent implements OnInit {
     })).subscribe(result => {
     });
   }
-  profile_update_request(){
-    this.spinner.show();
-    let req_body = {
-      uid: this.edit_id,
-      uname: this.edit_name,
-      uphone: this.edit_phone,
-      upassword: this.edit_password ? this.edit_password : ''
-    }
-    this.http.post('https://drivecraftlab.com/backend/api/user/user_update.php', req_body).pipe(map(data => {
-      this.spinner.hide();
-      if (data['status_code'] === 200) {
-        this.notify.onSuccess("Updated", data['message']);
-        this.user_obj_holder['uname'] = this.edit_name;
-        this.user_obj_holder['uphone'] = this.edit_phone;
-        this.rootstore.dispatch(new CommonActions.UpdateSuccess(this.user_obj_holder));
-        this.ngxSmartModalService.getModal('profile_details').close();
-      }else{
-        this.notify.onError("Error", data['message']);
-      }
-
-    })).subscribe(result => {
-    });
-  }
+ 
 
 }

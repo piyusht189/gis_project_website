@@ -3,7 +3,7 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
 
-import { AmcrestHttpService } from "./drivecraft-http.service";
+import { GisHttpService } from "./gis-http.service";
 
 import { Store } from "@ngrx/store";
 import * as RootReducer from "../app.reducers";
@@ -17,7 +17,7 @@ export class UserService {
     email;
     constructor(
         public rootstore: Store<RootReducer.State>,
-        public httpService: AmcrestHttpService
+        public httpService: GisHttpService
     ) {
         rootstore
             .select(state => state.common.user)
@@ -39,7 +39,7 @@ export class UserService {
      */
     public login(input): Observable<any> {
         return this.httpService
-            .httpPost("backend/api/user/user_login.php", {
+            .httpPost("backend_gis/api/user/user_login.php", {
                 email: input.email,
                 password: input.password,
                 fcmtoken: input.fcmtoken

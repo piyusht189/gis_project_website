@@ -9,9 +9,6 @@ import * as RootReducer from "../../../app.reducers"
   styleUrls: ['./navigation.component.css']
 })
 export class NavigationComponent implements OnInit {
-  isSuperAdmin = false;
-  isAdmin = false;
-  isUser = false;
   @Input()
   current
   constructor(public rootstore: Store<RootReducer.State>) {
@@ -19,9 +16,7 @@ export class NavigationComponent implements OnInit {
     .select(state => state.common.user)
     .subscribe(userObj => {
         if(userObj){
-          this.isSuperAdmin = userObj['u_role'] == 'superadmin' ? true : false;
-          this.isAdmin = userObj['u_role'] == 'admin' ? true : false;
-          this.isUser = userObj['u_role'] == 'admin' ? false : true;
+          
         }
     });
    }

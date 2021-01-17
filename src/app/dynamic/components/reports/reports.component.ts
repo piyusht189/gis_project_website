@@ -77,7 +77,7 @@ export class ReportsComponent implements OnInit {
   }
   getData(){
     this.spinner.show();
-    this.http.post('https://drivecraftlab.com/backend/api/reports/get_reports.php',{hid: this.hid, from: moment.utc(this.from+' 00:00:00', 'YYYY-MM-DD HH:mm:ss').tz('Asia/Kuwait').format('YYYY-MM-DD'), to: moment.utc(this.to+' 00:00:00', 'YYYY-MM-DD HH:mm:ss').tz('Asia/Kuwait').format('YYYY-MM-DD')}).pipe(map(data => {
+    this.http.post('https://drivecraftlab.com/backend_gis/api/reports/get_reports.php',{hid: this.hid, from: moment.utc(this.from+' 00:00:00', 'YYYY-MM-DD HH:mm:ss').tz('Asia/Kuwait').format('YYYY-MM-DD'), to: moment.utc(this.to+' 00:00:00', 'YYYY-MM-DD HH:mm:ss').tz('Asia/Kuwait').format('YYYY-MM-DD')}).pipe(map(data => {
           if (data['status_code'] === 200) {
             this.spinner.hide();
               this.reports = data['drivers'];
@@ -90,7 +90,7 @@ export class ReportsComponent implements OnInit {
   }
   getCompletedDrives(did){
     this.spinner.show();
-      this.http.post('https://drivecraftlab.com/backend/api/task/get_completed_tasks.php', {did: did}).pipe(map(data => {
+      this.http.post('https://drivecraftlab.com/backend_gis/api/task/get_completed_tasks.php', {did: did}).pipe(map(data => {
           this.spinner.hide();
           if (data['status_code'] === 200) {
             data['drives'] = data['drives'].map(e => {

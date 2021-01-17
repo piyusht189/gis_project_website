@@ -20,7 +20,7 @@ import { Router } from '@angular/router';
 import { notifyService } from './snotify';
 
 @Injectable()
-export class DriveCraftOAuthInterceptor implements HttpInterceptor {
+export class GISOAuthInterceptor implements HttpInterceptor {
   private token: string;
   email
   id
@@ -38,13 +38,13 @@ export class DriveCraftOAuthInterceptor implements HttpInterceptor {
   ): Observable<HttpEvent<any>> {
     // add authorization header with jwt token if available
     let requestClone;
-      if(request.url == "https://drivecraftlab.com/backend/api/user/user_login.php"){
+      if(request.url == "https://drivecraftlab.com/backend_gis/api/user/user_login.php"){
           let newParams = new HttpParams({fromString: request.params.toString()});
           newParams = newParams.append('token', 'login');
           requestClone = request.clone({
             params: newParams
           });
-      }else if(request.url.includes("https://drivecraftlab.com/backend/api/user/user_logout.php")){
+      }else if(request.url.includes("https://drivecraftlab.com/backend_gis/api/user/user_logout.php")){
         let newParams = new HttpParams({fromString: request.params.toString()});
         newParams = newParams.append('token', 'logout');
         requestClone = request.clone({

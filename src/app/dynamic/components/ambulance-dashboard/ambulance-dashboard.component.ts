@@ -6,12 +6,12 @@ import { notifyService } from 'src/app/services/snotify';
 import { NgxSmartModalService } from 'ngx-smart-modal';
 import { NguiMapComponent } from '@ngui/map';
 import { AgmCoreModule, MapsAPILoader } from "@agm/core";
-import { day_style } from "../dashboard/day-map-style";
 import { Store } from '@ngrx/store';
 import * as RootReducer from "../../../app.reducers"
 import { DomSanitizer } from '@angular/platform-browser';
 import * as moment from 'moment';
 import 'moment-timezone';
+import { day_style } from './day-map-style';
 declare let google: any;
 var timer;
 var ftime = 1;
@@ -70,8 +70,6 @@ export class AmbulanceDashboardComponent implements OnInit {
   dname_holder
   did_holder 
   drives = []
-  planned_drives = [];
-  completed_drives = [];
 
   drivePoints = []
   trip_polyline
@@ -81,27 +79,6 @@ export class AmbulanceDashboardComponent implements OnInit {
   body
   enroute = false;
   enroute_id;
-  planned_drive = false;
-  planned_periods = ['One Time Schedule','Daily','Weekly','Monthly'];
-  planned_period = ''; 
-  planned_ot_date = moment().format('YYYY-MM-DD');
-  min = moment().format('YYYY-MM-DD');
-  planned_time
-  planned_time_ui
-  weekdays = [
-    { item_key: 'mon', item_value: 'Mon' },
-    { item_key: 'tue', item_value: 'Tue' },
-    { item_key: 'wed', item_value: 'Wed' },
-    { item_key: 'thu', item_value: 'Thu' },
-    { item_key: 'fri', item_value: 'Fri' },
-    { item_key: 'sat', item_value: 'Sat' },
-    { item_key: 'sun', item_value: 'Sun' }
-  ];
-  dates = [
-    { item_key: '01'},{ item_key: '02'},{ item_key: '03'},{ item_key: '04'},{ item_key: '05'},{ item_key: '06'},{ item_key: '07'},{ item_key: '08'},{ item_key: '09'},{ item_key: '10'},{ item_key: '11'},{ item_key: '12'},{ item_key: '13'},{ item_key: '14'},{ item_key: '15'},{ item_key: '16'},{ item_key: '17'},{ item_key: '18'},{ item_key: '19'},{ item_key: '20'},{ item_key: '21'},{ item_key: '22'},{ item_key: '23'},{ item_key: '24'},{ item_key: '25'},{ item_key: '26'},{ item_key: '27'},{ item_key: '28'},{ item_key: '29'},{ item_key: '30'},{ item_key: '31'}
-  ];
-  planned_weekdays = [];
-  planned_dates = [];
   dropdownSettings = {};
   dropdownSettings_dates = {};
   delete_type  = 'regular'
@@ -160,13 +137,6 @@ export class AmbulanceDashboardComponent implements OnInit {
       }
     })
   }
-  show(val){
-    if(val){
-      this.planned_time = moment.utc(val,'hh:mm A').tz('Asia/Kuwait').format('HHmm');
-    }else{
-      this.planned_time = '';
-    }
-  }
   removePoint(index){
     if(index && !this.selectLocation){
      this.points.splice(index, 1);
@@ -200,8 +170,6 @@ export class AmbulanceDashboardComponent implements OnInit {
     this.did_holder = id;
     this.resetDrive();
     this.getDrives(id);
-    this.getPlannedDrives(id);
-    this.getCompletedDrives(id);
     this.clearDrive();
     this.ngxSmartModalService.getModal('adddrive').open();
     this.selectedIndex = 1;
@@ -219,12 +187,6 @@ export class AmbulanceDashboardComponent implements OnInit {
   resetDrive(){
     this.points = [{location: '',message: '', phone: ''}];
     this.selectLocation = false;
-    this.planned_dates = [];
-    this.planned_weekdays = [];
-    this.planned_period = '';
-    this.planned_time = '';
-    this.planned_time_ui = '';
-    this.planned_drive = false;
   }
   onMapReadyDrive(map){
     this.map_drive = map;
@@ -240,7 +202,7 @@ export class AmbulanceDashboardComponent implements OnInit {
         // this.initial_search_focus = false
         let autocomplete = new google.maps.places.Autocomplete(document.getElementById("search_address"));
         autocomplete.setComponentRestrictions(
-          {'country': ['bh', 'in']});
+          {'country': ['de']});
         autocomplete.addListener("place_changed", () => {
             this.ngZone.run(() => {
                 //get the place result
@@ -277,7 +239,7 @@ export class AmbulanceDashboardComponent implements OnInit {
   }
   getDrivers(flag?){
     this.spinner.show();
-    this.http.post('https://drivecraftlab.com/backend/api/user/get_drivers.php', {hid: this.hid}).pipe(map(data => {
+    this.http.post('https://drivecraftlab.com/backend_gis/api/user/get_drivers.php', {hid: this.hid}).pipe(map(data => {
           this.spinner.hide();
           if (data['status_code'] === 200) {
             let drivers = data['drivers'];
@@ -301,7 +263,7 @@ export class AmbulanceDashboardComponent implements OnInit {
     let boundaries = []
     let drivers_arr = drivers.map(e => e['aadid']);
     let drivers_joined = drivers_arr.join(',');
-    this.http.post('https://drivecraftlab.com/backend/api/user/get_driver_locations.php', {did: drivers_joined}).pipe(map(data => {
+    this.http.post('https://drivecraftlab.com/backend_gis/api/user/get_driver_locations.php', {did: drivers_joined}).pipe(map(data => {
           this.spinner.hide();
           if (data['status_code'] === 200) {
             let positions_arr = [];
@@ -645,32 +607,15 @@ export class AmbulanceDashboardComponent implements OnInit {
     this.map.fitBounds(this.bounds);
     this.map.setZoom(15);
   }
-  push_notification(){
-    this.spinner.show();
-      this.http.post('https://drivecraftlab.com/backend/api/driver/send_notification.php', {did: 'a' + this.did_holder, body: this.body , title: this.title}).pipe(map(data => {
-          this.spinner.hide();
-          if (data['status_code'] === 200) {
-            this.notify.onSuccess("Sent", data['message']);
-            this.ngxSmartModalService.getModal('send_notification').close();
-            this.title = '';
-            this.body = '';
-          }else{
-            this.notify.onError("Error", data['message']);
-          }
-        })).subscribe(result => {
-        });
-  }
   delete_drive(){
     this.spinner.show();
     if(this.delete_type == 'planned'){
       //Planned Delete
-      this.http.post('https://drivecraftlab.com/backend/api/task/delete_planned_task.php', {patid: this.tid_holder}).pipe(map(data => {
+      this.http.post('https://drivecraftlab.com/backend_gis/api/task/delete_planned_task.php', {patid: this.tid_holder}).pipe(map(data => {
         this.spinner.hide();
         if (data['status_code'] === 200) {
           this.notify.onSuccess("Deleted", data['message']);
           this.ngxSmartModalService.getModal('confirm_delete').close();
-          this.getPlannedDrives(this.did_holder);
-          this.getCompletedDrives(this.did_holder);
           this.clearDrive();
         }else{
           this.notify.onError("Error", data['message']);
@@ -679,7 +624,7 @@ export class AmbulanceDashboardComponent implements OnInit {
       });
     }else{
       //Regular Delete
-      this.http.post('https://drivecraftlab.com/backend/api/task/delete_task.php', {tid: this.tid_holder,did: this.did_holder}).pipe(map(data => {
+      this.http.post('https://drivecraftlab.com/backend_gis/api/task/delete_task.php', {tid: this.tid_holder,did: this.did_holder}).pipe(map(data => {
         this.spinner.hide();
         if (data['status_code'] === 200) {
           this.notify.onSuccess("Deleted", data['message']);
@@ -703,7 +648,7 @@ export class AmbulanceDashboardComponent implements OnInit {
   }
   getDrives(did){
     this.spinner.show();
-      this.http.post('https://drivecraftlab.com/backend/api/task/get_tasks.php', {did: did}).pipe(map(data => {
+      this.http.post('https://drivecraftlab.com/backend_gis/api/task/get_tasks.php', {did: did}).pipe(map(data => {
           this.spinner.hide();
           if (data['status_code'] === 200) {
             data['drives'] = data['drives'].map(e => {
@@ -711,38 +656,6 @@ export class AmbulanceDashboardComponent implements OnInit {
               return e;
             });
             this.drives = data['drives'].reverse();
-          }else{
-            this.notify.onError("Error", data['message']);
-          }
-        })).subscribe(result => {
-        });
-  } 
-  getPlannedDrives(did){
-    this.spinner.show();
-      this.http.post('https://drivecraftlab.com/backend/api/task/get_planned_tasks.php', {did: did}).pipe(map(data => {
-          this.spinner.hide();
-          if (data['status_code'] === 200) {
-            data['drives'] = data['drives'].map(e => {
-              e.work_log = e.work_log ? JSON.parse(e.work_log) : {};
-              return e;
-            });
-            this.planned_drives = data['drives'].reverse();
-          }else{
-            this.notify.onError("Error", data['message']);
-          }
-        })).subscribe(result => {
-        });
-  } 
-  getCompletedDrives(did){
-    this.spinner.show();
-      this.http.post('https://drivecraftlab.com/backend/api/task/get_completed_tasks.php', {did: did, today: 'yes'}).pipe(map(data => {
-          this.spinner.hide();
-          if (data['status_code'] === 200) {
-            data['drives'] = data['drives'].map(e => {
-              e.work_log = e.work_log ? JSON.parse(e.work_log) : {};
-              return e;
-            });
-            this.completed_drives = data['drives'].reverse();
           }else{
             this.notify.onError("Error", data['message']);
           }
@@ -783,28 +696,8 @@ export class AmbulanceDashboardComponent implements OnInit {
       this.spinner.show();
 
 
-      if(this.planned_drive){
-        //Planned Drive
-        if(this.planned_period){
-        this.http.post('https://drivecraftlab.com/backend/api/task/add_planned_task.php', {did: this.did_holder,type: this.planned_period, period: this.planned_period == 'One Time Schedule' ?  this.planned_ot_date : this.planned_period == 'Daily' ? null : this.planned_period == 'Weekly' ? this.planned_weekdays.map(e => e['item_key']).join(',') : this.planned_period == 'Monthly' ? this.planned_dates.map(e => e['item_key']).join(',') : null, start_time: this.planned_time ? this.planned_time : '0000', worklog: JSON.stringify(req_points)}).pipe(map(data => {
-          this.spinner.hide();
-          if (data['status_code'] === 200) {
-            this.notify.onSuccess("Created", data['message']);
-            this.selectedIndex = 2;
-            this.getPlannedDrives(this.did_holder);
-            this.getCompletedDrives(this.did_holder);
-            this.resetDrive();
-          }else{
-            this.notify.onError("Error", data['message']);
-          }
-        })).subscribe(result => {
-        });
-       }else{
-        this.notify.onError("Error", 'Choose Dates/Weekdays!');
-       } 
-      }else{
-        //Regular Drive
-        this.http.post('https://drivecraftlab.com/backend/api/task/add_task.php', {did: this.did_holder, worklog: JSON.stringify(req_points)}).pipe(map(data => {
+        //Add Drive
+        this.http.post('https://drivecraftlab.com/backend_gis/api/task/add_task.php', {did: this.did_holder, worklog: JSON.stringify(req_points)}).pipe(map(data => {
           this.spinner.hide();
           if (data['status_code'] === 200) {
             this.notify.onSuccess("Created", data['message']);
@@ -817,7 +710,6 @@ export class AmbulanceDashboardComponent implements OnInit {
           }
         })).subscribe(result => {
         });
-      }
     }
     }else{
       this.notify.onError("Empty","Add atleast 1 pickup and 1 drop point with message!");

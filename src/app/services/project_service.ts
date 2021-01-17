@@ -5,7 +5,7 @@ import { Store } from "@ngrx/store";
 import * as RootReducer from "../app.reducers";
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import * as CommonActions from "../actions/common.action";
-import { AmcrestHttpService } from './drivecraft-http.service';
+import { GisHttpService } from './gis-http.service';
 var company_name = null;
 @Injectable()
 export class ProjectService {
@@ -13,7 +13,7 @@ export class ProjectService {
     email;
     customer_id
     constructor(
-        public httpService: AmcrestHttpService,
+        public httpService: GisHttpService,
         public rootstore: Store<RootReducer.State>,
         private _http: HttpClient
     ) {

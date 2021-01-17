@@ -111,16 +111,7 @@
           </div>
         </div>
       </div>
-      <footer class="footer">
-        <div class="container-fluid">
-          <div class="copyright float-right">
-            &copy; Copyright, DriveCraft Labs
-            <script>
-              document.write(new Date().getFullYear())
-            </script>
-          </div>
-        </div>
-      </footer>
+    
     </div>
   </div>
 
@@ -206,17 +197,7 @@
                                                   width: auto;
                                                   height: auto;
                                                   margin-right: 2px;">remove_red_eye</i> View Completed Drive</button>
-                                                  <button *ngIf="drive.status == 'rejected'" type="button" class="btn btn-danger" (click)="viewDrive(drive.work_log)" style="padding: 0;
-                                                  height: 30px;
-                                                  width: 100%;
-                                                  text-transform: capitalize;
-                                                  font-size: 0.9em;"><i class="material-icons" style="font-size: 1.2em;    line-height: 20px;
-                                                  margin: 0;
-                                                  margin-bottom: 2px;
-                                                  cursor: pointer;
-                                                  width: auto;
-                                                  height: auto;
-                                                  margin-right: 2px;">remove_red_eye</i> View Rejected Drive</button>
+                                                 
                                                   <br>
                                                     <span *ngIf="drive.status == 'completed'" style="font-size: 1em;
                                                     color: #157719;
@@ -224,12 +205,7 @@
                                                     text-align: center;
                                                     float: right;
                                                     font-weight: 500;">Completed</span>
-                                                    <span *ngIf="drive.status == 'rejected'" style="font-size: 1em;
-                                                    color: #dc0f00;
-                                                    margin: 5px 0px;
-                                                    text-align: center;
-                                                    float: right;
-                                                    font-weight: 500;">Rejected</span>
+                                                   
                                               </div>
                                             </div>
                                       </div>

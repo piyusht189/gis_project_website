@@ -5,15 +5,14 @@
       Tip 2: you can also add an image using data-image tag
   -->
     <div class="logo"><a href="http://www.creative-tim.com" class="simple-text logo-normal">
-      <div style="text-align: center;"><img src="../../../assets/img/logo.png" style="    width: 70%;
-        margin: auto;text-align: center;"/></div>
+      <div style="text-align: center;"><span>Hospital Logistics</span></div>
       </a></div>
     <div class="sidebar-wrapper">
       <ul class="nav">
-        <li class="nav-item"  [class.active]="current == 'hospitaldashboard'" *ngIf="!isSuperAdmin && (isAdmin || (!isAdmin && isUser))">
+        <li class="nav-item"  [class.active]="current == 'hospitaldashboard'">
           <a class="nav-link" href="/dashboard-hospital">
             <i class="material-icons">local_hospital</i>
-            <p>Ambulance Dashboard</p>
+            <p>Dashboard</p>
           </a>
         </li>
         <!--li class="nav-item"  [class.active]="current == 'regulardashboard'" *ngIf="isAdmin">
@@ -22,42 +21,18 @@
               <p>Regular Dashboard</p>
             </a>
           </li-->
-        <li class="nav-item " [class.active]="current == 'drivers'" *ngIf="!isSuperAdmin && (isAdmin || (!isAdmin && isUser))">
-          <a class="nav-link" href="/manage-drivers">
-            <i class="material-icons">airline_seat_recline_normal</i>
-            <p>Drivers</p>
-          </a>
-        </li>
-        <li class="nav-item " [class.active]="current == 'vehicles'" *ngIf="!isSuperAdmin && (isAdmin || (!isAdmin && isUser))">
-          <a class="nav-link" href="/manage-vehicles">
-            <i class="material-icons">directions_car</i>
-            <p>Vehicles</p>
-          </a>
-        </li>
-        <li class="nav-item "  [class.active]="current == 'reports'" *ngIf="!isSuperAdmin && (isAdmin || (!isAdmin && isUser))">
+        <li class="nav-item "  [class.active]="current == 'reports'">
           <a class="nav-link" href="/reports">
             <i class="material-icons">notifications</i>
             <p>Reports</p>
           </a>
         </li>
-        <li class="nav-item "  [class.active]="current == 'managecaptains'" *ngIf="!isSuperAdmin && isAdmin && !isUser">
-            <a class="nav-link" href="/manage-captains">
-              <i class="material-icons">how_to_reg</i>
-              <p>Manage Captains</p>
-            </a>
-          </li>
-        <li class="nav-item" [class.active]="current == 'hospitals'" *ngIf="isSuperAdmin">
+        <!--li class="nav-item" [class.active]="current == 'hospitals'">
             <a class="nav-link" href="/hospitals">
               <i class="material-icons">local_hospital</i>
               <p>Hospitals</p>
             </a>
-          </li>
-          <li class="nav-item" [class.active]="current == 'cities'" *ngIf="isSuperAdmin">
-            <a class="nav-link" href="/cities">
-              <i class="material-icons">location_city</i>
-              <p>Cities</p>
-            </a>
-          </li>
+          </li-->
       </ul>
     </div>
   </div>

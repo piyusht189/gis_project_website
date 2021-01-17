@@ -18,7 +18,7 @@ const httpOptions = {
 };
 
 @Injectable()
-export class AmcrestHttpService {
+export class GisHttpService {
     public TIMEOUT = 30000;
     public baseUrl: string;
 

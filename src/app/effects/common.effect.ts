@@ -46,17 +46,7 @@ export class CommonEffects {
         ofType(CommonActions.LOGIN_SUCCESS),
         map((action: CommonActions.LoginSuccess) => action.payload),
         mergeMap(payload => {
-            //this.spinner.hide();
-            // this.notify.onSuccess("Welcome", "Start tracking and much more !");
-          //  this.messagingService.requestPermission()
-         //   this.messagingService.receiveMessage()
-         //   let show = this.messagingService.currentMessage
-          //  alert(show);
-            if(payload.user['u_role']=='superadmin'){
-                this.router.navigate(["hospitals"]);
-            }else{
-                this.router.navigate(["dashboard-hospital"]);
-            }
+            this.router.navigate(["dashboard-hospital"]);    
             return [];
         })
     );

@@ -8,11 +8,10 @@ import { EffectsModule } from "@ngrx/effects";
 import { StoreModule, ActionReducerMap, ActionReducer, MetaReducer } from '@ngrx/store';
 import { appReducers, metaReducers } from "./app.reducers";
 import { EFFECTS } from "./app.effects";
-import { NgxSpinner } from 'ngx-spinner/lib/ngx-spinner.enum';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { RouteGuardService } from './services/route-guard.service';
 import { HttpClientModule,HTTP_INTERCEPTORS } from '@angular/common/http';
-import { DriveCraftOAuthInterceptor } from './services/drivecraft-oauth.interceptor';
+import { GISOAuthInterceptor } from './services/gis-oauth.interceptor';
 import { ToastDefaults, SnotifyService, SnotifyModule } from 'ng-snotify';
 import { notifyService } from './services/snotify';
 import { AuthenticationService } from './services/authentication.service';
@@ -34,15 +33,10 @@ import { NgxDaterangepickerMd, DaterangepickerComponent } from 'ngx-daterangepic
 import { LoginComponent } from './static/login/login.component';
 import { MomentModule } from 'ngx-moment';
 import { HeaderComponent } from './dynamic/containers/header/header.component';
-import { FooterComponent } from './dynamic/containers/footer/footer.component';
 import { NavigationComponent } from './dynamic/containers/navigation/navigation.component';
-import { DashboardComponent } from './dynamic/components/dashboard/dashboard.component';
 import { NguiMapModule} from '@ngui/map';
 import { AgmCoreModule } from "@agm/core";
-import { CitiesComponent } from './dynamic/components/cities/cities.component';
 import { AmbulanceDashboardComponent } from './dynamic/components/ambulance-dashboard/ambulance-dashboard.component';
-import { ManageCaptainsComponent } from './dynamic/components/manage-captains/manage-captains.component';
-import { ManageDriversComponent } from './dynamic/components/manage-drivers/manage-drivers.component'
 import { MapIconImageComponent } from './dynamic/components/ambulance-dashboard/map-icon-image/map-icon-image.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import {MatTabsModule} from '@angular/material/tabs';
@@ -53,24 +47,17 @@ import {DpDatePickerModule} from 'ng2-date-picker';
 import { AngularFireModule } from '@angular/fire';
 import { AngularFireMessagingModule } from '@angular/fire/messaging';
 import { ReportsComponent } from './dynamic/components/reports/reports.component';
-import { AmcrestHttpService } from './services/drivecraft-http.service';
-import { ManageVehiclesComponent } from './dynamic/components/manage-vehicles/manage-vehicles.component';
+import { GisHttpService } from './services/gis-http.service';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
     HeaderComponent,
-    FooterComponent,
     NavigationComponent,
-    DashboardComponent,
-    CitiesComponent,
     AmbulanceDashboardComponent,
-    ManageCaptainsComponent,
-    ManageDriversComponent,
     MapIconImageComponent,
     ReportsComponent,
-    ManageVehiclesComponent
    ],
   imports: [
     BrowserModule,
@@ -119,7 +106,7 @@ import { ManageVehiclesComponent } from './dynamic/components/manage-vehicles/ma
     RouteGuardService,
         {
             provide: HTTP_INTERCEPTORS,
-            useClass: DriveCraftOAuthInterceptor,
+            useClass: GISOAuthInterceptor,
             multi: true
         },
         { provide: "SnotifyToastConfig", useValue: ToastDefaults },
@@ -128,8 +115,8 @@ import { ManageVehiclesComponent } from './dynamic/components/manage-vehicles/ma
         AuthenticationService,
         UserService,
         ProjectService,
-        AmcrestHttpService,
-        DriveCraftOAuthInterceptor,
+        GisHttpService,
+        GISOAuthInterceptor,
         AsyncPipe
   ],
   bootstrap: [AppComponent],

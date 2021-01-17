@@ -76,17 +76,6 @@
     padding: 30px;
 }
 
-[identifier="edit_hospital"] .nsm-dialog{
-    max-width: 95% !important;
-}
-[identifier="edit_hospital"] .nsm-body{
-    padding-right: 15px;
-    padding-left: 15px;
-}
-[identifier="edit_hospital"] .nsm-content{
-    border-radius: 25px;
-    padding: 30px;
-}
 
 
 
